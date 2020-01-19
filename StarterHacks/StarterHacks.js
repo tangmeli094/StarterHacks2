@@ -4,10 +4,10 @@ let headerHeight = 50;
 let profileBtnWidth = 100;
 let profileBtnText = 'PROFILE';
 // header text
-let company = 'GREENIFY INC.';
+let company = 'GREENIFY INITIATIVES';
 let canadaTxt = 'Government of \nCanada';
 // header images and other
-let logo;
+let logo; 
 let canada;
 
 // sign in page variables -----------------
@@ -28,6 +28,7 @@ let graphWidth = 600;
 let graphHeight = 240;
 let typeImg = [];
 let barCol = [];
+let hoverBar = false;
 
 // tips page variables --------------------
 let tipsTextHeader = "At Home —Suggested Actions:";
@@ -60,6 +61,7 @@ let rightHeader = 'Current Carbon Footprint for the Year:';
 // read in data files ---------------------
 let file = [];
 let masterList = [];
+let masterListQuart = [];
 let index;
 
 // other variables ------------------------
@@ -86,14 +88,23 @@ function preload() {
 
   // file
   file = loadStrings('file/data.txt');
+  file2 = loadStrings('file/data2.txt');
 }
 
 function setup() {
   createCanvas(1280, 720);
+  
+  // bar colours - data page
+  barCol[0] = '#46f0d6';
+  barCol[1] = '#5970cf';
+  barCol[2] = '#aacf59';
+  barCol[3] = '#d9865d';
+  barCol[4] = '#949494';
 }
 
 function draw() {
   read(file); // read in file
+  //textFont('Trebuchet MS');
   // display selected page
   if (selectedPage === 'sign up') {
     login();
@@ -215,13 +226,13 @@ function login() {
   if (mouseIsPressed) {
     rectHitTest(770, 425, 80, 30, 'next');
   }
-  
+
   // error msg
   fill(255, 0, 0); // off-white
   textAlign(LEFT);
   textSize(16);
   text(errorMsg, 400, 450);
-  
+
   fill (255);
   textAlign(CENTER);
   textSize(20);
@@ -306,18 +317,37 @@ function graphBackground() {
   let barX = 225;
   let incrementationX = graphWidth / 16; // space b/w bars
   let convBar = 0; // convert statistics to bar size
-  //barCol(255, 255, 0); // yellow
   for (let j = 0; j < 3; j++) { // 3 years
     for (let i = 0; i < 4; i++) { // 4 months
       if (selectedVar === 'vehicle') {
         convBar = map(masterList[i * (j + 1)].elecUse, 0, 15000, 0, graphHeight * 3);
+        rectHitTest(barX, startY - convBar, incrementationX, convBar, 'barHover');
+        fill(barCol[i]);
+        if (hoverBar) {
+          fill(barCol[4]);
+          text(masterList[i * (j + 1)].elecUse, barX + 20, startY - convBar - 10);
+          hoverBar = false;
+        }
       } else if (selectedVar === 'electricity') {
         convBar = map(masterList[i * (j + 1)].vehicleWaste, 0, 15000, 0, graphHeight * 3);
+        rectHitTest(barX, startY - convBar, incrementationX, convBar, 'barHover');
+        fill(barCol[i]);
+        if (hoverBar) {
+          fill(barCol[4]);
+          text(masterList[i * (j + 1)].vehicleWaste, barX + 20, startY - convBar - 10);
+          hoverBar = false;
+        }
       } else if (selectedVar === 'garbage') {
         convBar = map(masterList[i * (j + 1)].wasteMass, 0, 15000, 0, graphHeight * 3);
+        rectHitTest(barX, startY - convBar, incrementationX, convBar, 'barHover');
+        fill(barCol[i]);
+        if (hoverBar) {
+          fill(barCol[4]);
+          text(masterList[i * (j + 1)].wasteMass, barX + 20, startY - convBar - 10);
+          hoverBar = false;
+        }
       }
       rect(barX, startY - convBar, incrementationX, convBar);
-      //barCol
       barX += incrementationX * 1.5;
     }
     barX += incrementationX * 2;
@@ -403,7 +433,7 @@ function profile() {
   rectMode(CORNER);
   rect(640, 350, 3, 250);
   textAlign(LEFT);
-  
+
   // left side profile details
   fill(45); 
   textSize(20);
@@ -424,7 +454,7 @@ function profile() {
   textSize(16);
   text(phoneNum, 250, 560);
   textAlign(CENTER, CENTER);
-  
+
   // right side of profile details
   fill(45); // off-white
   textSize(20);
@@ -443,28 +473,57 @@ function read(file) {
     for (let j=0; j<=10; j++) {
       // info object to store the users data 
       let info = {
-        username: file[i], 
-        password: file[i+1], 
-        name: file[i+2], 
-        residents: file[i+3], 
-        province: file[i+4], 
-        year: file[i+5], 
-        vehicleWaste: file[i+6], 
-        elecUse: file[i+7], 
-        wasteMass: file[i+8], 
-        payout: file[i+9]
-        };
-      //add info object to the master list
-      masterList[k] = info;
-    }
+      username: 
+      file[i], 
+      password: 
+      file[i+1], 
+      name: 
+      file[i+2], 
+      residents:
+      file[i+3], 
+      province: 
+      file[i+4], 
+      year: 
+      file[i+5], 
+      vehicleWaste: 
+      file[i+6], 
+      elecUse: 
+      file[i+7], 
+      wasteMass: 
+      file[i+8], 
+      payout: 
+      file[i+9]
+    };
+    //add info object to the master list
+    masterList[k] = info;
+  }
   i += 10; // next ten details in file data.txt
   k++;
-  } 
+} 
+}
+
+//call would be readQuart(file2, masterList[index].name)
+function readQuart(file2, lastname){
+  let k=0; //masterListQuart index
+  let j =0; //file 2 index
+  let info = [];
+  while(j<file2.length){
+    for(let i=0; i<6;i++){
+      info[i]= file2[i];
+      info[i+1] = file2[i+1];
+     info[i+3] = file2[i+2];
+     info[i+4] = file2[i+3];
+     info[i+5] = file2[i+4];
+     info[i+6] = file2[i+5];
+    }
+    masterListQuart[k] = info;
+    j+= 6;
+    k++;
+  }
 }
 
 // function to check correct login details
 // if incorrect, user does not get access
-// *** this function is incomplete but with more time, could be elaborated on
 
 function find(usernameTyped, passwordTyped) {
   // traverses the masterList looking for the username entered
@@ -477,7 +536,7 @@ function find(usernameTyped, passwordTyped) {
       //password matches username -> successful search 
       // open page
       selectedPage = 'data';
-    } 
+    }
   }
 }
 
@@ -502,6 +561,8 @@ function rectHitTest(x, y, w, h, type) {
     selectedPage = 'data';
   } else if (type === 'toProfile' && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
     selectedPage = 'profile';
+  } else if (type === 'barHover' && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
+    hoverBar = true;
   }
 }
 
@@ -550,13 +611,8 @@ function mousePressed() {
 function keyPressed () {
   if (selectedPage === 'sign up' && userType) {
     inpUser += key;
-  } if (selectedPage === 'sign up' && passType) {
-    inpPass += key;
   } 
-  if (keyCode === BACKSPACE) {
-    inpUser -= key;
-  }
-  if (key === 'w') {
-    selectedPage = 'data';
+  if (selectedPage === 'sign up' && passType) {
+    inpPass += key;
   }
 }
