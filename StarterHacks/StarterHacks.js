@@ -1,34 +1,88 @@
-// main class - do not edit in this
-
-let logo;
-let selectedPage = 'data';
-let selectedVar = 'vehicle';
-let bgPadding = 10;
-let imageSize = 150;
-
-// header variables
+// header variables -----------------------
+// header sizes
 let headerHeight = 50;
 let profileBtnWidth = 100;
 let profileBtnText = 'PROFILE';
+// header text
+let company = 'GREENIFY INC.';
+let canadaTxt = 'Government of \nCanada';
+// header images and other
+let logo;
+let canada;
 
-// data page variables
+// sign in page variables -----------------
+let loginTxt = 'Sign In';
+let next = 'Next';
+let newAcc = "Don't have an account? Sign Up Now";
+let inpUser = 'Username';
+let inpPass = '********';
+let userType = false;
+let nextX;
+let nextY;
+
+// data page variables --------------------
 let titleText = 'DATA | VEHICLE USAGE';
 let graphWidth = 600;
 let graphHeight = 240;
 let typeImg = [];
 
-// tips variables
-let tipsText = '';
+// tips page variables --------------------
+let tipsTextHeader = "At Home —Suggested Actions:";
+let tipsText = "Slightly turn down your households heating thermostat on winter nights. \n\nSlightly turn up your household's air conditioner thermostat in summer. \n\nEnable sleep feature on your computer and monitor. \n\nUse a clothes line or drying rack \for 50% of your laundry, instead of your dryer. \n\nSubstitute a portion of your household's current electricity use with Green Power.\n\nYour local utility or other electricity supplier may offer green power as an option.";
+let imgBg = [];
+let currImgBg = 0;
 
-// loads in images
+// profile page ---------------------------
+let viewPage = 'home';
+let pfp;
+let inputProv = 'ON';
+let inputFam = 2;
+// profile information
+let firstName = 'John';
+let lastName = 'Smith';
+let fullName = lastName + ', ' + firstName;
+let carbNum = '100 tCO2e';
+let prov ='Province: ' + inputProv;
+// profile contact
+let famNum = 'Number of Family Members: ' + inputFam;
+let phoneNum = 'Phone Number: 123-456-7890';
+let address = 'Address: 123 Real St';
+let email = 'Email: ' + firstName + lastName + '@gmail.com';
+// profile text
+let textUnder = 'this is an example of a description';
+let leftHeader = 'My Information:';
+let leftInfo = 'profile stuff goes here';
+let rightHeader = 'Current Carbon Footprint for the Year:';
+
+// read in data files ---------------------
+let file = [];
+let masterList = [];
+let index;
+
+// other variables ------------------------
+let selectedPage = 'sign up';
+let selectedVar = 'vehicle';
+let bgPadding = 10;
+let imageSize = 150;
+
+// -- CODE -- //
+
 function preload() {
+  // images
   logo = loadImage('img/leaficon.png');
+  pfp = loadImage ('img/pfp.png'); // profile
+  canada = loadImage ('img/canada.png');
+  // carbon footprint variables - data and tips page
   typeImg[0] = loadImage('img/electricity.png');
   typeImg[1] = loadImage('img/vehicle.png');
   typeImg[2] = loadImage('img/waste.png');
-  img1 = loadImage('img/electricity.png');
-  img2 = loadImage('img/vehicle.png');
-  img3 = loadImage('img/waste.png');
+  // background image behind info - tips page
+  imgBg[0] = loadImage ('img/dam.jpg');
+  imgBg[1] = loadImage ('img/cars.jpg');
+  imgBg[2] = loadImage('img/trash.jpg');
+
+  // file
+  file = loadStrings('file/data.txt');
 }
 
 function setup() {
@@ -36,114 +90,242 @@ function setup() {
 }
 
 function draw() {
+  read(file); // read in file
+  // display selected page
   if (selectedPage === 'sign up') {
-    signUp();
+    login();
   } else if (selectedPage === 'data') {
     data();
   } else if (selectedPage === 'tips') {
     tips();
+  } else if (selectedPage === 'profile') {
+    profile();
   }
 }
 
-function keyPressed () {
-  if (key === 'c') {
-    selectedPage = 'tips';
-  }
-}
-
-function header() {
+// headers --------------------------------
+// sign in header
+function headerComp() {
   // header background
   noStroke();
   fill(45); // dark grey
   rect(0, 0, width, headerHeight);
+
   // logo
-  fill(80); // lighter dark grey
+  fill(45); // lighter dark grey
   rect(0, 0, headerHeight, headerHeight);
   imageMode(CENTER, CENTER);
   image(logo, headerHeight / 2, headerHeight / 2, 35, 35);
 
+  // company Name
+  fill(230); // off-white
+  textAlign(LEFT);
+  textSize(20);
+  text(company, profileBtnWidth / 2, headerHeight / 2 + 8);
+
+  // canada logo
+  fill(45); // lighter dark grey
+  rect(1240, headerHeight / 2, 100, headerHeight/2);
+  imageMode(CENTER, CENTER);
+  image(canada, 1240, headerHeight / 2, 65, 35);
+
+  // canada text
+  fill(230); // off-white
+  textAlign(CENTER);
+  textSize(14);
+  text(canadaTxt, 1150, headerHeight / 2 - 3);
+}
+
+// header for all other pages, excluding sign in
+function header() {
+  if (selectedPage === 'profile') {
+    profileBtnWidth = 160;
+    profileBtnText = 'UPDATE PROFILE';
+  } else {
+    profileBtnWidth = 100;
+    profileBtnText = 'PROFILE';
+  }
+
+  // header background
+  noStroke();
+  fill(45); // off white
+  rect(0, 0, width, headerHeight);
+
+  // logo
+  fill(230); // lighter dark grey
+  if (selectedPage === 'profile') {
+    rect(0, headerHeight, 1280, 720);
+  }
+  imageMode(CENTER, CENTER);
+  image(logo, headerHeight / 2, headerHeight / 2, 35, 35);
+
   // profile button
-  rect(width - profileBtnWidth - 5, 5, profileBtnWidth, headerHeight - 10);
-  fill(220); // off-white
+  rectMode(RIGHT, CORNER);
+  rect(width - profileBtnWidth - 5, 5, profileBtnWidth, headerHeight - 10, 10);
+  fill(50); // off-white
   textAlign(CENTER, CENTER);
   textSize(16);
   text(profileBtnText, width - profileBtnWidth / 2 - 2.5, headerHeight / 2 + 2.5);
+
+  // tips and data page buttons
+  if (selectedPage === 'data') {
+    fill(230); // lighter dark grey
+    rect(width - profileBtnWidth * 2 - 5 * 2, 5, profileBtnWidth, headerHeight - 10, 10);
+    fill(50); // off-white
+    text('TIPS', width - profileBtnWidth * 1.5 - 5 * 1.5, headerHeight / 2 + 2.5);
+  } else if (selectedPage === 'tips') {
+    fill(230); // lighter dark grey
+    rect(width - profileBtnWidth * 2 - 5 * 2, 5, profileBtnWidth, headerHeight - 10, 10);
+    fill(50); // off-white
+    text('DATA', width - profileBtnWidth * 1.5 - 5 * 1.5, headerHeight / 2 + 2.5);
+  }
+
+  // company name
+  fill(230); // off-white
+  textAlign(LEFT);
+  textSize(20);
+  text(company, 65, headerHeight / 2 + 2.5);
 }
 
-function signUp() {
-  header();
+// pages ----------------------------------
+// allows user to sign into their account
+function login() {
+  background(220); // grey
+  fill(255); // white
+  rect(150, 130, width - 300, 500, 20);
+
+  // 'Sign In' text
+  fill(45); // off-white
+  textAlign(LEFT);
+  textSize(35);
+  text(loginTxt, 400, 275);
+
+  // textboxes
+  fill(230); // dark grey
+  rect(400, 325, 450, 40, 10);
+  fill(230); // dark grey
+  rect(400, 375, 450, 40, 10);
+
+  // next button
+  fill(67, 168, 84); // dark grey
+  rect(770, 425, 80, 30, 10);
+  if (mouseIsPressed) {
+    rectHitTest(770, 425, 80, 30, 'next');
+  }
+  fill (255);
+  textAlign(CENTER);
+  textSize(20);
+  text(next, 810, 442);
+
+  // make new account
+  fill (45);
+  textAlign(CENTER);
+  textSize(16);
+  text(newAcc, 640, 500);
+  textAlign(LEFT, TOP);
+  text(inpUser, 410, 340);
+  text(inpPass, 410, 390);
+  if (mouseIsPressed) {
+    rectHitTest(400, 325, 450, 40, 'username');
+    rectHitTest(400, 375, 450, 40, 'password');
+  }
+  textAlign(CENTER, CENTER);
+
+  headerComp();
 }
 
+// displays carbon footprint of user in graph
+// hover over icons below to switch between graphs
 function data() {
+  // background designs
   background(220); // light grey
-
-  header();
-
   whiteBg();
 
-  let convertToBar = '';
+  // title of graph based on selType(); (see below conditional statements)
   if (selectedVar === 'vehicle') {
-    titleText = 'DATA | VEHICLE WASTE';
-    convertToBar = 200;//map(masterList[i].vehicleWaste, 0, 1500, 160, 400);
-  } else if (selectedVar === 'electricity') {
     titleText = 'DATA | ELECTRICITY USAGE';
-    convertToBar = 250;//map(masterList[i].vehicleWaste, 0, 1500, 160, 400);
+  } else if (selectedVar === 'electricity') {
+    titleText = 'DATA | VEHICLE WASTE';
   } else if (selectedVar === 'garbage') {
     titleText = 'DATA | WASTE MASS';
-    convertToBar = 300;//map(masterList[i].vehicleWaste, 0, 1500, 160, 400);
   }
-  graphBackground(convertToBar);
 
-  selType();
+  graphBackground(); // graph design
+  selType(); // mouse hover over icons
+  header();
 }
 
+// creates two white rectangles to hold data and tips page layout
 function whiteBg () {
   fill(255); // white
   rectMode(CORNER);
-  rect(bgPadding, headerHeight + bgPadding, width - bgPadding * 2, height * 0.60);
+  rect(bgPadding, headerHeight + bgPadding, width - bgPadding * 2, height * 0.60); // top
   text();
-
-  rect(bgPadding, height * 0.60 + headerHeight + bgPadding * 2, width - bgPadding * 2, height * 0.30 - 8);
+  rect(bgPadding, height * 0.60 + headerHeight + bgPadding * 2, width - bgPadding * 2, height * 0.30 - 8); // bottom
 }
 
-function graphBackground(convBar) {
+// display graph
+function graphBackground() {
   // title
   textSize(20);
   textAlign(LEFT);
   fill(0); // black
   text(titleText, bgPadding * 3, headerHeight + bgPadding * 4);
 
-  // date
-  textSize(18);
+  // date of graph
+  textSize(16);
   textAlign(CENTER);
-  text('< Aug 2016 - Aug 2018 >', width / 2, headerHeight * 2);
+  fill(120); // grey
+  text('< Jan 2016 - Jan 2018 >', width / 2, headerHeight * 2 + 20);
 
-  // create graph y values
-  let y = 400;
+  // create y-value details (kg of CO2 equivalent)
+  let startY = 400; // where 0 is located
   textSize(12);
-  fill(180); // dark grey
+  fill(180); // light grey
+  text('Kilograms\nof Carbon\nDioxide\nEquivalent\n(kg)', 60, 275);
   for (let i = 0; i < 1501; i = i + 500) {
     noStroke();
-    text(i, 100, y);
-    stroke(180); // dark grey
-    line(125, y, width - 125, y);
-    y -= 80;
+    text(i, 125, startY); // kg
+    stroke(180); // light grey
+    line(150, startY, width - 150, startY);
+    startY -= 80;
   }
 
-  // creat graph bars
-  let startY = 400;
-  let incrementationX = graphWidth / 16;
+  // create graph bars
+  startY = 400;
   let barX = 225;
+  let incrementationX = graphWidth / 16; // space b/w bars
+  let convBar = 0; // convert statistics to bar size
   fill(255, 255, 0); // yellow
-  for (let j = 0; j < 3; j++) {
-    for (let i = 0; i < 4; i++) {
-      rect(barX, convBar, incrementationX, startY - convBar);
+  for (let j = 0; j < 3; j++) { // 3 years
+    for (let i = 0; i < 4; i++) { // 4 months
+      if (selectedVar === 'vehicle') {
+        convBar = map(masterList[i * (j + 1)].elecUse, 0, 15000, 0, graphHeight * 3);
+      } else if (selectedVar === 'electricity') {
+        convBar = map(masterList[i * (j + 1)].vehicleWaste, 0, 15000, 0, graphHeight * 3);
+      } else if (selectedVar === 'garbage') {
+        convBar = map(masterList[i * (j + 1)].wasteMass, 0, 15000, 0, graphHeight * 3);
+      }
+      rect(barX, startY - convBar, incrementationX, convBar);
       barX += incrementationX * 1.5;
     }
     barX += incrementationX * 2;
   }
+
+  // create x-axis details
+  startY = 425;
+  let yearX = 225 + incrementationX * 1.4;
+  incrementationX = graphWidth / 8; // space b/w years
+  fill(180); // light grey
+  noStroke();
+  textAlign(CENTER, CENTER);
+  for (let i = 6; i < 9; i++) {
+    text('201' + i, yearX, startY);
+    yearX += incrementationX * 4;
+  }
 }
 
+// allows user to hover mouse over icons and display related information
 function selType() {
   let x = 250;
   let space = (width - 200) / 3;
@@ -153,12 +335,160 @@ function selType() {
     circleHitTest(mouseX, mouseY, x, height * 0.84, imageSize / 2, i, selectedPage);
     x += space;
   }
+}
 
-  /*angleMode(DEGREES);
-   rotate(90);
-   fill(220); // grey
-   textSize(16);
-   text('< Aug 2016 - Aug 2018 >', 0 - width / 2, 0);*/
+// displays tips to user to reduce their carbon footprint
+function tips() {
+  // tips page background designs and functions
+  ecoTips();
+
+  // semi-transparent image behind text
+  tint(255, 75);
+  image(imgBg[currImgBg], 600, 192, 1400, 600);
+  noTint();
+
+  // title and text
+  fill(0); 
+  textSize(20);
+  textAlign(LEFT, TOP);
+  text(tipsText, 100, 150);
+  textSize(40);
+  text(tipsTextHeader, 100, 100);
+
+  header();
+}
+
+// tips page background details 
+// allow user to mouse hover over icon to display related details
+function ecoTips() {
+  background(220); // light grey
+  whiteBg(); 
+  selType();
+}
+
+function profile() {
+  header();
+
+  // profile picture
+  fill(230); // light grey
+  rectMode(CORNER);
+  rect(640, 100, 100, 100);
+  image(pfp, 640, 150, 150, 150);
+
+  // user's name
+  fill(45); // off-white
+  textAlign(CENTER, CENTER);
+  textSize(30);
+  textFont("Trebuchet MS");
+  text(fullName, 640, 245);
+
+  // user description
+  fill(45);
+  textSize(16);
+  text(textUnder, 640, 275);
+
+  // vertical line
+  fill(100); // lighter dark grey
+  rectMode(CORNER);
+  rect(640, 350, 3, 250);
+  textAlign(LEFT);
+  
+  // left side profile details
+  fill(45); 
+  textSize(20);
+  text(leftHeader, 250, 385);
+  fill(100);
+  textSize(16);
+  text(famNum, 250, 440);
+  fill(100);
+  textSize(16);
+  text(address, 250, 470);
+  fill(100);
+  textSize(16);
+  text(prov, 250, 500);
+  fill(100);
+  textSize(16);
+  text(email, 250, 530);
+  fill(100);
+  textSize(16);
+  text(phoneNum, 250, 560);
+  textAlign(CENTER, CENTER);
+  
+  // right side of profile details
+  fill(45); // off-white
+  textSize(20);
+  text(rightHeader, 960, 425);
+  fill(100);
+  textSize(50);
+  text(carbNum, 960, 500);
+  fill(100);
+}
+
+// read in file and information from data.txt for program use
+function read(file) {
+  let i = 0; // location in file
+  let k = 0; // masterList array #
+  while (i < file.length) {
+    for (let j=0; j<=10; j++) {
+      // info object to store the users data 
+      let info = {
+        username: file[i], 
+        password: file[i+1], 
+        name: file[i+2], 
+        residents: file[i+3], 
+        province: file[i+4], 
+        year: file[i+5], 
+        vehicleWaste: file[i+6], 
+        elecUse: file[i+7], 
+        wasteMass: file[i+8], 
+        payout: file[i+9]
+        };
+      //add info object to the master list
+      masterList[k] = info;
+    }
+  i += 10; // next ten details in file data.txt
+  k++;
+  } 
+}
+
+// function to check correct login details
+// if incorrect, user does not get access
+// *** this function is incomplete but with more time, could be elaborated on
+/*
+function find(usernameTyped, passwordTyped) {
+  //traverses the masterList looking for the username entered
+  for (let i =0; i < masterList.length; i++) {
+    //found username
+    if (usernameTyped == masterList[i].username) {
+      //password matches username -> successful search 
+      if (passwordTyped == masterList[i].password) {
+        index = i; //this is the index used to access all other info on this user for other pages 
+        //open page
+      } else { //username and password not found 
+        text("Username or password incorrect");
+      }
+    } else {
+      text("Username or password incorrect");
+    }
+  }
+}
+*/
+
+function rectHitTest(x, y, w, h, type) {
+  if (type === 'next' && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
+    selectedPage = 'data';
+  } else if (type === 'username' && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
+    if (inpUser === 'Username') {
+      inpUser = '';
+      userType = true;
+    }
+  } else if (type === 'toTips' && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
+    selectedPage = 'tips';
+  } else if (type === 'toData' && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
+    selectedPage = 'data';
+  } else if (type === 'toProfile' && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
+    selectedPage = 'profile';
+  }
 }
 
 function circleHitTest (mX, mY, x, y, radius, hoverVar, currentPg) {
@@ -173,169 +503,50 @@ function circleHitTest (mX, mY, x, y, radius, hoverVar, currentPg) {
       }
     } else if (currentPg === 'tips') {
       if (hoverVar === 0) {
-        tipsText = "At Home —Suggested Actions: \nSlightly turn down your households heating thermostat on winter nights. \nSlightly turn up your household's air conditioner thermostat in summer. \nEnable sleep feature on your computer and monitor. \nWash clothes \in cold water instead of hot. Enter the number of loads you \do \in a week \nUse a clothes line or drying rack \for 50% of your laundry, instead of your dryer. \nSubstitute a portion of your household's current electricity use with Green Power. \nYour local utility or other electricity supplier may offer green power as an option. \nReplace 60-watt incandescent light bulbs \with 13-watt ENERGY STAR lights. \nReplace old gas or oil furnace or boiler \with an ENERGY STAR model. \nReplace single-pane windows \with ENERGY STAR windows.";
+        currImgBg = 0;
+        tipsTextHeader = "At Home —Suggested Actions:";
+        tipsText = "Slightly turn down your households heating thermostat on winter nights. \n\nSlightly turn up your household's air conditioner thermostat in summer. \n\nEnable sleep feature on your computer and monitor. \n\nUse a clothes line or drying rack \for 50% of your laundry, instead of your dryer. \n\nSubstitute a portion of your household's current electricity use with Green Power.\n\nYour local utility or other electricity supplier may offer green power as an option.";
       } else if (hoverVar === 1) {
-        tipsText = "On the Road —Suggested Actions: \nReduce the amount you drive your vehicle by 10% KMs per week. \nWill you perform regular maintenance on your vehicles?  \nRegular maintenance includes: keeping your engine properly tuned and tires properly inflated. \nReplace a vehicle that gets more KMs per Liter. \nWalking, biking, carpooling, telecommuting, and using mass transit are good options.";
+        currImgBg = 1;
+        tipsTextHeader = "On the Road —Suggested Actions:";
+        tipsText = "Reduce the amount you drive your vehicle by 10% KMs per week. \n\nWill you perform regular maintenance on your vehicles?  \n\nRegular maintenance includes: keeping your engine properly tuned and tires properly inflated. \n\nReplace a vehicle that gets more KMs per Liter. \n\nWalking, biking, carpooling, telecommuting, and using mass transit are good options.";
       } else if (hoverVar === 2) {
-        tipsText = "Waste Control –Suggested Actions: \nBy recycling all of these items, you can reduce your total annual waste amount by almost 60%";
+        currImgBg = 2;
+        tipsTextHeader = "Waste Control –Suggested Actions:";
+        tipsText = "By recycling all of these items, you can reduce your total annual waste amount by almost 60%";
       }
     }
   }
 }
 
-function tips() {
-  background(220); // grey
-
-  fill(0);
-  textSize(20);
-  textAlign(LEFT, TOP);
-  ecoTips();
-  text(tipsText, 100, 150);
-  header();
+function mousePressed() {
+  if (selectedPage !== 'sign up') {
+    rectHitTest(0, 0, headerHeight, headerHeight, 'toData');
+  }
+  if (selectedPage !== 'sign up' && selectedPage !== 'profile') {
+    rectHitTest(width - profileBtnWidth - 5, 5, profileBtnWidth, headerHeight - 10, 'toProfile');
+  }
+  if (selectedPage === 'data') {
+    rectHitTest(width - profileBtnWidth * 2 - 5 * 2, 5, profileBtnWidth, headerHeight - 10, 'toTips');
+  } else if (selectedPage === 'tips') { 
+    rectHitTest(width - profileBtnWidth * 2 - 5 * 2, 5, profileBtnWidth, headerHeight - 10, 'toData');
+  }
 }
 
-function ecoTips() {
-  background(220); // light grey
+function keyPressed () {
+  if (key === '1') {
+    selectedPage = 'sign up';
+  } else if (key === '2') {
+    selectedPage = 'data';
+  } else if (key === '3') {
+    selectedPage = 'tips';
+  } else if (key === '4') {
+    selectedPage = 'profile';
+  }
 
-  whiteBg();
-
-  // Tips Instruction
-  fill(0); // black
-  textAlign(LEFT);
-  textSize(20);
-  text('Want Some Tips?', 50, height - 180);
-  textSize(15);
-  text('Hover over the Icon', 55, height - 155);
-
-  selType();
+  if (selectedPage === 'sign up' && userType) {
+    inpUser += key;
+  } else if (selectedPage === 'sign up' && passType) {
+    inpPass += '*';
+  }
 }
-
-// ------------------------------------------------
-
-// main class - do not edit in this
-/*
-let viewPage = 'home';
-
-let logo;
-let pfp;
-let line;
-let inputProv = 'ON';
-let inputFam = 2;
-let firstName = 'John';
-let lastName = 'Smith';
-
-// header variables
-let headerHeight = 50;
-let profileBtnWidth = 160;
-let profileBtnText = 'UPDATE PROFILE';
-let fullName = lastName + ', ' + firstName;
-let textUnder = 'this is an example of a description';
-let leftHeader = 'My Information:';
-let leftInfo = 'profile stuff goes here';
-let rightHeader = 'Current Carbon Footprint for the Year:';
-let carbNum = '100 tCO2e';
-let prov ='Province: ' + inputProv;
-let famNum = 'Number of Family Members: ' + inputFam;
-let phoneNum = 'Phone Number: 123-456-7890';
-let address = 'Address: 123 Real St';
-let email = 'Email: ' + firstName + lastName + '@gmail.com';
-let company = 'GREENIFY INC.';
-
-// loads in images
-function preload() {
-  logo = loadImage('img/leaficon.png');
-  pfp = loadImage ('img/pfp.png');
-}
-
-function setup() {
-  createCanvas(1280, 720);
-  background(220); // grey
-}
-
-function draw() {
-  profile();
-}
-
-function profile() {
-  header();
-
-  // Profile Pic
-  fill(230); // lighter dark grey
-  rectMode(CORNER);
-  rect(640, 100, 100, 100);
-
-  // user's name
-  fill(45); // off-white
-  textAlign(CENTER, CENTER);
-  textSize(30);
-  textFont("Trebuchet MS");
-  text(fullName, 640, 245);
-
-  // user description
-  fill(45); // off-white
-  textSize(16);
-  text(textUnder, 640, 275);
-
-  image(pfp, 640, 150, 150, 150);
-
-  // vertical line
-  fill(100); // lighter dark grey
-  rectMode(CORNER);
-  rect(640, 350, 3, 250);
-
-  textAlign(LEFT);
-  // left side
-  fill(45); // off-white
-  textSize(20);
-  text(leftHeader, 250, 385);
-  fill(100); // off-white
-  textSize(16);
-  text(famNum, 250, 440);
-  fill(100); // off-white
-  textSize(16);
-  text(address, 250, 470);
-  fill(100); // off-white
-  textSize(16);
-  text(prov, 250, 500);
-  fill(100); // off-white
-  textSize(16);
-  text(email, 250, 530);
-  fill(100); // off-white
-  textSize(16);
-  text(phoneNum, 250, 560);
-
-  textAlign(CENTER, CENTER);
-  // right side
-  fill(45); // off-white
-  textSize(20);
-  text(rightHeader, 960, 425);
-  fill(100); // off-white
-  textSize(50);
-  text(carbNum, 960, 500);
-  fill(100); // off-white
-}
-
-function header() {
-  // header background
-  noStroke();
-  fill(45); // off white
-  rect(0, 0, width, headerHeight);
-  // logo
-  fill(230); // lighter dark grey
-  rect(0, headerHeight, 1280, 720);
-  imageMode(CENTER, CENTER);
-  image(logo, headerHeight / 2, headerHeight / 2, 35, 35);
-
-  // profile button
-  rect(width - profileBtnWidth - 5, 5, profileBtnWidth, headerHeight - 10, 10);
-  fill(50); // off-white
-  textAlign(CENTER, CENTER);
-  textSize(16);
-  text(profileBtnText, width - profileBtnWidth / 2 - 2.5, headerHeight / 2 + 2.5);
-
-  // Company Name
-  fill(230); // off-white
-  textAlign(LEFT);
-  textSize(20);
-  text(company, profileBtnWidth / 2 - 25, headerHeight / 2 + 2.5);
-}*/
