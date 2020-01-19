@@ -17,6 +17,7 @@ let newAcc = "Don't have an account? Sign Up Now";
 let inpUser = 'Username';
 let inpPass = 'Password';
 let userType = false;
+let passType = false;
 let nextX;
 let nextY;
 let errorMsg = '';
@@ -26,6 +27,7 @@ let titleText = 'DATA | VEHICLE USAGE';
 let graphWidth = 600;
 let graphHeight = 240;
 let typeImg = [];
+let barCol = [];
 
 // tips page variables --------------------
 let tipsTextHeader = "At Home —Suggested Actions:";
@@ -304,7 +306,7 @@ function graphBackground() {
   let barX = 225;
   let incrementationX = graphWidth / 16; // space b/w bars
   let convBar = 0; // convert statistics to bar size
-  fill(255, 255, 0); // yellow
+  //barCol(255, 255, 0); // yellow
   for (let j = 0; j < 3; j++) { // 3 years
     for (let i = 0; i < 4; i++) { // 4 months
       if (selectedVar === 'vehicle') {
@@ -315,6 +317,7 @@ function graphBackground() {
         convBar = map(masterList[i * (j + 1)].wasteMass, 0, 15000, 0, graphHeight * 3);
       }
       rect(barX, startY - convBar, incrementationX, convBar);
+      //barCol
       barX += incrementationX * 1.5;
     }
     barX += incrementationX * 2;
@@ -322,7 +325,7 @@ function graphBackground() {
 
   // create x-axis details
   startY = 425;
-  let yearX = 225 + incrementationX * 1.4;
+  let yearX = 225 + incrementationX * 2.75;
   incrementationX = graphWidth / 8; // space b/w years
   fill(180); // light grey
   noStroke();
@@ -466,19 +469,17 @@ function read(file) {
 function find(usernameTyped, passwordTyped) {
   // traverses the masterList looking for the username entered
   for (let i =0; i < masterList.length; i++) {
-    if (usernameTyped === masterList[i].username && passwordTyped === masterList[i].password) {
-      //password matches username -> successful search 
-        index = i; //this is the index used to access all other info on this user for other pages 
-        //open page
-        
-    } else if(usernameTyped !== masterList[i].username || passwordTyped !== masterList[i].password){
+    if (usernameTyped !== masterList[i].username && passwordTyped !== masterList[i].password) {
       errorMsg = "Username or password incorrect";
       inpUser = 'Username';
       inpPass = 'Password';
-    }
+    } else if (usernameTyped === masterList[i].username && passwordTyped === masterList[i].password) {
+      //password matches username -> successful search 
+      // open page
+      selectedPage = 'data';
+    } 
   }
 }
-
 
 function rectHitTest(x, y, w, h, type) {
   if (type === 'next' && mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
@@ -526,7 +527,7 @@ function circleHitTest (mX, mY, x, y, radius, hoverVar, currentPg) {
       } else if (hoverVar === 2) {
         currImgBg = 2;
         tipsTextHeader = "Waste Control –Suggested Actions:";
-        tipsText = "By recycling all of these items, you can reduce your total annual waste amount by almost 60% \n\nNever buy plastic waterbottles. It is much better to get a good water filter and drink from the tap \n\nBring your own reusable bags when doing any type of shopping \n\nGive your old clothes to charities or others who can use them \n\nCancel your magazine and newspaper subscriptions and read them online or at the library";
+        tipsText = "By recycling, you can reduce your total annual waste amount by almost 60% \n\nNever buy plastic waterbottles. It is much better to get a good water filter and drink from the tap \n\nBring your own reusable bags when doing any type of shopping \n\nGive your old clothes to charities or others who can use them \n\nCancel your magazine and newspaper subscriptions and read them online or at the library";
       }
     }
   }
@@ -554,5 +555,8 @@ function keyPressed () {
   } 
   if (keyCode === BACKSPACE) {
     inpUser -= key;
+  }
+  if (key === 'w') {
+    selectedPage = 'data';
   }
 }
